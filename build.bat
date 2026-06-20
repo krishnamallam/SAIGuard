@@ -16,6 +16,14 @@ if not exist "%CSC%" (
 echo Compiler: %CSC%
 echo.
 
+if exist SAIGuard.ico (
+    set ICON_FLAG=/win32icon:SAIGuard.ico
+    echo Icon: SAIGuard.ico
+) else (
+    set ICON_FLAG=
+    echo Icon: none (place SAIGuard.ico next to SAIGuard.cs to embed it)
+)
+
 "%CSC%" ^
     /out:SAIGuard.exe ^
     /target:winexe ^
@@ -23,6 +31,7 @@ echo.
     /nologo ^
     /r:System.Windows.Forms.dll ^
     /r:System.Drawing.dll ^
+    %ICON_FLAG% ^
     SAIGuard.cs
 
 if %ERRORLEVEL% EQU 0 (

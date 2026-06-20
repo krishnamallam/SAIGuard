@@ -262,8 +262,8 @@ namespace SAIGuard
         {
             MessageBox.Show(
                 "SAI Guard v" + Version + "\n\n" +
-                "Keeps your Windows machine awake.\n" +
-                "No fake keystrokes - uses SetThreadExecutionState API.\n\n" +
+                "Keeps your Windows machine awake.\n\n" +
+                
                 "Open source: github.com/MedialogicAI/SAIGuard\n" +
                 "License: MIT\n\n" +
                 "© 2026 Medialogic AI",

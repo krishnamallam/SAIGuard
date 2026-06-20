@@ -17,6 +17,11 @@ jobs:
       - name: Build with csc.exe
         shell: cmd
         run: |
+          if exist SAIGuard.ico (
+            set ICON=/win32icon:SAIGuard.ico
+          ) else (
+            set ICON=
+          )
           C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe ^
             /out:SAIGuard.exe ^
             /target:winexe ^
@@ -24,6 +29,7 @@ jobs:
             /nologo ^
             /r:System.Windows.Forms.dll ^
             /r:System.Drawing.dll ^
+            %ICON% ^
             SAIGuard.cs
 
       - name: Verify build
