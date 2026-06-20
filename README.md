@@ -124,4 +124,4 @@ MIT - see [LICENSE](LICENSE)
 
 ## Credits
 
-Built by [Medialogic AI](https://medialogic.ai). Inspired by [kyleleong/caffeine](https://github.com/kyleleong/caffeine).
+Built by [Medialogic AI](https://medialogic.ai).
