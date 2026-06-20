@@ -1,0 +1,52 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build with csc.exe
+        shell: cmd
+        run: |
+          C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe ^
+            /out:SAIGuard.exe ^
+            /target:winexe ^
+            /optimize+ ^
+            /nologo ^
+            /r:System.Windows.Forms.dll ^
+            /r:System.Drawing.dll ^
+            SAIGuard.cs
+
+      - name: Verify build
+        shell: cmd
+        run: |
+          if not exist SAIGuard.exe (
+            echo Build failed!
+            exit /b 1
+          )
+          dir SAIGuard.exe
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: SAIGuard.exe
+          generate_release_notes: true
+          body: |
+            ## SAI Guard ${{ github.ref_name }}
+
+            **Download `SAIGuard.exe` below and double-click to run.**
+
+            No installer. No dependencies. Works on any Windows 7+ machine.
+
+            - Prevents sleep, screen lock, and screensaver
+            - System tray icon with pause/resume
+            - Auto-starts with Windows
