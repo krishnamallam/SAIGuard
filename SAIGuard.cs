@@ -1,6 +1,6 @@
 // ============================================================================
 //  SAI Guard - Keep your Windows machine awake
-//  https://github.com/MedialogicAI/SAIGuard
+//  https://github.com/krishnamallam/SAIGuard
 //
 //  Click to run. Sits in your system tray. Auto-starts on boot.
 //  Uses the Windows SetThreadExecutionState API - no fake keystrokes,
@@ -16,7 +16,7 @@
 //      /win32icon:SAIGuard.ico SAIGuard.cs
 //
 //  License: MIT
-//  Copyright (c) 2026 Medialogic AI - https://medialogic.ai
+//  Copyright (c) 2026 Medialogic AI - https://medialogicai.it
 // ============================================================================
 
 using System;
@@ -284,9 +284,10 @@ namespace SAIGuard
         {
             MessageBox.Show(
                 "SAI Guard v" + Version + "\n\n" +
-                "Keeps your Windows machine awake.\n\n" +
+                "Keeps your Windows machine awake using the Windows\n" +
+                "SetThreadExecutionState API - no simulated input.\n\n" +
                 
-                "Open source: github.com/MedialogicAI/SAIGuard\n" +
+                "Source: github.com/krishnamallam/SAIGuard\n" +
                 "License: MIT\n\n" +
                 "© 2026 Medialogic AI",
                 "About SAI Guard",

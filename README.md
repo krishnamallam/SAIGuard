@@ -3,21 +3,22 @@
 **Keep your Windows machine awake. Click to run. That's it.**
 
 <p align="center">
-  <img src="assets/screenshot.png" alt="SAI Guard in the system tray" width="320">
+  <img src="SAIGuard_icon.png" alt="SAI Guard" width="160">
 </p>
 
 SAI Guard prevents your Windows PC from going to sleep, locking the screen, or activating the screensaver - without simulating keystrokes or mouse movements.
 
 Perfect for:
+- 🤖 **AI agents** running long autonomous tasks (coding agents, browser agents, RPA bots) - keeps the host awake so the run never stalls
 - 🖥️ **Virtual machines** running unattended automation (RPA, CI/CD agents, test runners)
 - 📺 **Presentations** and demos
 - ⬇️ **Long downloads** or uploads
 - 🔧 **Remote sessions** that you don't want to disconnect
-- 🤖 **Any machine** that needs to stay awake
+- 💻 **Any machine** that needs to stay awake
 
 ## Download
 
-➡️ **[Download SAIGuard.exe](https://github.com/MedialogicAI/SAIGuard/releases/latest)** - single file, no installer, no dependencies.
+➡️ **[Download SAIGuard.exe](https://github.com/krishnamallam/SAIGuard/releases/latest)** - single file, no installer, no dependencies.
 
 Just double-click it. A green shield appears in your system tray. Done.
 
@@ -62,7 +63,7 @@ This is the same proven API used by Microsoft PowerToys Awake, Caffeine, and sim
 No SDK or toolchain required. Windows ships with a C# compiler.
 
 ```
-git clone https://github.com/MedialogicAI/SAIGuard.git
+git clone https://github.com/krishnamallam/SAIGuard.git
 cd SAIGuard
 build.bat
 ```
@@ -118,10 +119,19 @@ The `.exe` is a GUI app (system tray). For service mode, wrap it with [NSSM](htt
 **What's the difference vs PowerToys Awake?**
 SAI Guard is a single 10KB file with no installer and no dependencies. PowerToys is a 200MB+ suite. If all you need is keep-awake, SAI Guard is simpler.
 
+## About
+
+SAI Guard is a tiny, single-file Windows tray utility that keeps a machine awake by calling the Windows `SetThreadExecutionState` API - no simulated keystrokes, no mouse jiggling, no background bloat. It was built to keep unattended automation hosts - AI agents, RPA bots, CI/CD runners, and test machines - from sleeping, locking, or disconnecting mid-run.
+
+| | |
+|---|---|
+| **Maintainer** | [Medialogic AI](https://medialogicai.it) |
+| **Source** | [github.com/krishnamallam/SAIGuard](https://github.com/krishnamallam/SAIGuard) |
+| **Latest build** | [Download from Releases](https://github.com/krishnamallam/SAIGuard/releases/latest) |
+| **Runtime** | .NET Framework 4.x (built into Windows - nothing to install) |
+| **Platforms** | Windows 7 / 8 / 10 / 11 / Server, 32 & 64-bit |
+| **License** | [MIT](LICENSE) |
+
 ## License
 
 MIT - see [LICENSE](LICENSE)
-
-## Credits
-
-Built by [Medialogic AI](https://medialogic.ai).
