@@ -102,6 +102,24 @@ tasklist | findstr SAIGuard
 type "%~dp0logs\sai_guard.log"
 ```
 
+### Antivirus false positives
+
+SAI Guard is a tiny, unsigned executable that registers itself to auto-start - behaviour
+that heuristic/ML detectors (e.g. Malwarebytes `MachineLearning/Anomalous`, Windows Defender)
+may flag even though it is harmless. It is a false positive.
+
+On a single machine: **Restore** it from quarantine and add it to the **Allow list**.
+
+To roll it out across managed VMs, pick one:
+
+- **Allow-list by hash (most precise):** allow the published SHA256 - see `SAIGuard.exe.sha256`
+  on the [latest release](https://github.com/krishnamallam/SAIGuard/releases/latest) - in your AV console.
+- **Allow-list the install path**, e.g. `C:\SAIGuard\`.
+- **Report the false positive** to your AV vendor so it is whitelisted for everyone
+  (Malwarebytes: Help -> Report a false positive).
+- **Best fix - code-sign the `.exe`.** A signed build from an org certificate clears these
+  detections; signing is already wired into the release workflow (add the cert as a repo secret).
+
 ## FAQ
 
 **Does it work with RDP?**
@@ -111,7 +129,7 @@ Yes. The API call works regardless of how you're connected.
 No. It uses a Windows API flag - no simulated input. Completely safe for any automation.
 
 **Will antivirus flag it?**
-Possibly, since it's a small unsigned executable that modifies startup. Add an exception or sign it with your org certificate.
+Sometimes - it's a small unsigned executable that sets itself to auto-start, which trips heuristic/ML detectors. It's a false positive. See [Antivirus false positives](#antivirus-false-positives) for how to allow-list it (and sign it).
 
 **Can I run it as a Windows Service instead?**
 The `.exe` is a GUI app (system tray). For service mode, wrap it with [NSSM](https://nssm.cc) or use Task Scheduler with "Run whether user is logged on or not".

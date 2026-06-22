@@ -14,6 +14,13 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      # Optional Authenticode signing - add these as repo secrets to enable:
+      #   CODE_SIGN_CERT     = base64 of your code-signing .pfx
+      #   CODE_SIGN_PASSWORD = the .pfx password
+      # If the secret is absent, the signing step is skipped and the build still succeeds.
+      CODE_SIGN_CERT: ${{ secrets.CODE_SIGN_CERT }}
+      CODE_SIGN_PASSWORD: ${{ secrets.CODE_SIGN_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
 
@@ -57,6 +64,28 @@ jobs:
             exit /b 1
           )
           dir SAIGuard.exe
+
+      # Authenticode signing - only runs if the CODE_SIGN_CERT secret is set (see env above).
+      # A signed binary clears the "MachineLearning/Anomalous" false positives from Malwarebytes/Defender.
+      - name: Sign SAIGuard.exe
+        if: ${{ env.CODE_SIGN_CERT != '' }}
+        shell: pwsh
+        run: |
+          $signtool = (Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue |
+                       Sort-Object FullName -Descending | Select-Object -First 1).FullName
+          if (-not $signtool) { throw "signtool.exe not found on the runner" }
+
+          $pfx = Join-Path $env:RUNNER_TEMP "cert.pfx"
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:CODE_SIGN_CERT))
+
+          & $signtool sign /f $pfx /p $env:CODE_SIGN_PASSWORD /fd SHA256 `
+            /tr http://timestamp.digicert.com /td SHA256 /d "SAI Guard" SAIGuard.exe
+          $code = $LASTEXITCODE
+          Remove-Item $pfx -Force                # never leave the cert on disk
+          if ($code -ne 0) { throw "signtool sign failed ($code)" }
+
+          & $signtool verify /pa SAIGuard.exe
+          Write-Host "Signed and verified SAIGuard.exe"
 
       - name: Generate SHA256 checksum
         shell: pwsh
