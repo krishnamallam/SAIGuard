@@ -1,12 +1,18 @@
-name: Build and Release
+name: Build
 
+# Continuous build: compiles SAIGuard.exe on every push/PR to main so a broken
+# build is caught immediately, well before you cut a release tag.
+# The compiled .exe is uploaded as a downloadable build artifact (no release).
 on:
   push:
-    tags:
-      - 'v*'
-
-permissions:
-  contents: write
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'assets/**'
+      - 'LICENSE'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -41,18 +47,9 @@ jobs:
           )
           dir SAIGuard.exe
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
         with:
-          files: SAIGuard.exe
-          generate_release_notes: true
-          body: |
-            ## SAI Guard ${{ github.ref_name }}
-
-            **Download `SAIGuard.exe` below and double-click to run.**
-
-            No installer. No dependencies. Works on any Windows 7+ machine.
-
-            - Prevents sleep, screen lock, and screensaver
-            - System tray icon with pause/resume
-            - Auto-starts with Windows
+          name: SAIGuard-exe
+          path: SAIGuard.exe
+          if-no-files-found: error

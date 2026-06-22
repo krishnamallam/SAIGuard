@@ -1,0 +1,97 @@
+name: Build and Release
+
+# Runs when you push a version tag like v2.1.0 (the release).
+# Also runnable manually from the Actions tab for a dry-run build (no release is created).
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write          # required so the job can create a GitHub Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Keep the in-app "About" version in sync with the release tag.
+      # e.g. tag v2.1.0  ->  static readonly string Version = "2.1.0";
+      - name: Set version from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v')   # e.g. v2.1.0 -> 2.1.0
+          $c = Get-Content SAIGuard.cs -Raw
+          $c = $c -replace 'AssemblyVersion\("[^"]*"\)',              "AssemblyVersion(`"$version`")"
+          $c = $c -replace 'AssemblyFileVersion\("[^"]*"\)',          "AssemblyFileVersion(`"$version`")"
+          $c = $c -replace 'AssemblyInformationalVersion\("[^"]*"\)', "AssemblyInformationalVersion(`"$version`")"
+          Set-Content SAIGuard.cs -Value $c
+          Write-Host "Version set to $version"
+
+      - name: Build with csc.exe
+        shell: cmd
+        run: |
+          if exist SAIGuard.ico (
+            set ICON=/win32icon:SAIGuard.ico
+          ) else (
+            set ICON=
+          )
+          C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe ^
+            /out:SAIGuard.exe ^
+            /target:winexe ^
+            /optimize+ ^
+            /nologo ^
+            /r:System.Windows.Forms.dll ^
+            /r:System.Drawing.dll ^
+            %ICON% ^
+            SAIGuard.cs
+
+      - name: Verify build
+        shell: cmd
+        run: |
+          if not exist SAIGuard.exe (
+            echo Build failed!
+            exit /b 1
+          )
+          dir SAIGuard.exe
+
+      - name: Generate SHA256 checksum
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash SAIGuard.exe -Algorithm SHA256).Hash.ToLower()
+          "$hash  SAIGuard.exe" | Out-File -Encoding ascii SAIGuard.exe.sha256
+          Write-Host $hash
+
+      - name: Build summary
+        shell: pwsh
+        run: |
+          $size = [math]::Round((Get-Item SAIGuard.exe).Length / 1KB, 1)
+          "### SAIGuard build complete" >> $env:GITHUB_STEP_SUMMARY
+          "- Size: $size KB" >> $env:GITHUB_STEP_SUMMARY
+          "- SHA256: ``$((Get-Content SAIGuard.exe.sha256))``" >> $env:GITHUB_STEP_SUMMARY
+
+      # Only create a release when a tag was pushed (skipped on manual dry-runs).
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            SAIGuard.exe
+            SAIGuard.exe.sha256
+          generate_release_notes: true
+          body: |
+            ## SAI Guard ${{ github.ref_name }}
+
+            **Download `SAIGuard.exe` below and double-click to run.**
+
+            No installer. No dependencies. Works on any Windows 7+ machine.
+
+            - Prevents sleep, screen lock, and screensaver
+            - System tray icon with pause/resume
+            - Auto-starts with Windows
+
+            Verify the download (optional, in PowerShell):
+            `(Get-FileHash SAIGuard.exe -Algorithm SHA256).Hash` and compare to `SAIGuard.exe.sha256`.

@@ -29,6 +29,19 @@ using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
+// Assembly metadata — these populate the EXE's Windows file properties
+// (right-click SAIGuard.exe -> Properties -> Details) and are the single
+// source of truth for the version shown in the tray menu and About box.
+// CI (.github/workflows/release.yml) rewrites the version here from the git tag.
+[assembly: AssemblyTitle("SAI Guard")]
+[assembly: AssemblyProduct("SAI Guard")]
+[assembly: AssemblyCompany("Medialogic AI")]
+[assembly: AssemblyCopyright("Copyright (c) 2026 Medialogic AI")]
+[assembly: AssemblyDescription("Keep your Windows machine awake.")]
+[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyFileVersion("2.0.0.0")]
+[assembly: AssemblyInformationalVersion("2.0.0")]
+
 namespace SAIGuard
 {
     static class Program
@@ -50,10 +63,19 @@ namespace SAIGuard
         static MenuItem startupItem;
         static string logPath;
         static readonly string AppName = "SAIGuard";
-        static readonly string Version = "2.0.0";
+        static readonly string Version = GetVersion();
 
         // ── Registry key for auto-start ────────────────────────────────
         static readonly string StartupRegKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
+
+        // Reads the version baked into the assembly (the [assembly: AssemblyVersion]
+        // attribute above) and formats it as Major.Minor.Build, e.g. "2.0.0".
+        // One source of truth: the tray, About box, and file properties never drift.
+        static string GetVersion()
+        {
+            var v = Assembly.GetExecutingAssembly().GetName().Version;
+            return v.Major + "." + v.Minor + "." + v.Build;
+        }
 
         // ── Entry point ────────────────────────────────────────────────
         [STAThread]
